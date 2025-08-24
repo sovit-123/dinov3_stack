@@ -99,4 +99,3 @@ python infer_seg_image.py --input <directory/with/images> --model <path/to/best_
 ```
 python infer_seg_video.py --input <path/to/video.mp4> --model <path.to/best_iou_weights.pth> --config <dataset/config.yaml> --repo-dir <path/to/cloned/dinov3> --model-name <model_name> --imgsz 640 640
 ```
-# dinov3_stack

@@ -1,0 +1,9 @@
+*.swp
+*.swo
+__pycache__
+
+weights/*
+!weights/readme.txt
+input/*
+!input/readme.txt
+outputs/
