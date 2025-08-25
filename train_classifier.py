@@ -3,6 +3,8 @@ import argparse
 import torch.nn as nn
 import torch.optim as optim
 import os
+import random
+import numpy as np
 
 from tqdm.auto import tqdm
 from src.img_cls.model import build_model
@@ -11,8 +13,12 @@ from src.img_cls.utils import save_model, save_plots, SaveBestModel
 from torch.optim.lr_scheduler import MultiStepLR
 
 seed = 42
+random.seed(seed)
+np.random.seed(seed)
 torch.manual_seed(seed)
 torch.cuda.manual_seed(seed)
+torch.cuda.manual_seed(seed)
+torch.cuda.manual_seed_all(seed)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = True
 

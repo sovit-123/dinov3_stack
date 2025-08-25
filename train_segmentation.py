@@ -3,18 +3,23 @@ import os
 import argparse
 import torch.nn as nn
 import yaml
+import numpy as np
+import random
 
 from src.img_seg.datasets import get_images, get_dataset, get_data_loaders
 from src.img_seg.model import Dinov3Segmentation
-# from src.img_seg.config import ALL_CLASSES, LABEL_COLORS_LIST
 from src.img_seg.engine import train, validate
 from src.img_seg.utils import save_model, SaveBestModel, save_plots, SaveBestModelIOU
 from torch.optim.lr_scheduler import MultiStepLR
 from torchinfo import summary
 
 seed = 42
+random.seed(seed)
+np.random.seed(seed)
 torch.manual_seed(seed)
 torch.cuda.manual_seed(seed)
+torch.cuda.manual_seed(seed)
+torch.cuda.manual_seed_all(seed)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = True
 
