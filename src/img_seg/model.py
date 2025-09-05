@@ -72,19 +72,16 @@ class Dinov3Segmentation(nn.Module):
 
     def forward(self, x):
         # Backbone forward pass
-        features = self.model.backbone.forward_features(x)
-        patch_features = features['x_norm_patchtokens']
-
-        # Reshape patch tokens to (B, EmbeddingDim, 46, 46)
-        B, N, D = patch_features.shape
-        tokenH = tokenW = int(math.sqrt(N))
-        
-        # Need to correctly resize and permute.
-        x = patch_features.view(B, tokenH, tokenW, D)
-        x = x.permute(0, 3, 1, 2)  # (B, EmbeddingDim, 46, 46)
+        features = self.model.backbone.get_intermediate_layers(
+            x, 
+            n=1, 
+            reshape=True, 
+            return_class_token=False, 
+            norm=True
+        )[0]
 
         # Decoder forward pass
-        classifier_out = self.model.decode_head(x)
+        classifier_out = self.model.decode_head(features)
         return classifier_out
     
 if __name__ == '__main__':
