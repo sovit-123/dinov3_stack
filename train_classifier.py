@@ -92,7 +92,6 @@ parser.add_argument(
     '--repo-dir',
     dest='repo_dir',
     help='path to the cloned DINOv3 repository',
-    required=True
 )
 parser.add_argument(
     '--model-name',
