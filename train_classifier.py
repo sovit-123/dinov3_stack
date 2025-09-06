@@ -10,6 +10,7 @@ from tqdm.auto import tqdm
 from src.img_cls.model import build_model
 from src.img_cls.datasets import get_datasets, get_data_loaders
 from src.img_cls.utils import save_model, save_plots, SaveBestModel
+from src.utils.common import get_dinov3_paths
 from torch.optim.lr_scheduler import MultiStepLR
 
 seed = 42
@@ -102,6 +103,8 @@ parser.add_argument(
 args = parser.parse_args()
 print(args)
 
+DINOV3_REPO, DINOV3_WEIGHTS = get_dinov3_paths()
+
 # Training function.
 def train(model, trainloader, optimizer, criterion):
     model.train()
@@ -191,9 +194,9 @@ if __name__ == '__main__':
     model = build_model(
         num_classes=len(dataset_classes), 
         fine_tune=args.fine_tune, 
-        weights=args.weights,
+        weights=os.path.join(DINOV3_WEIGHTS, args.weights),
         model_name=args.model_name,
-        repo_dir=args.repo_dir
+        repo_dir=DINOV3_REPO
     ).to(device)
     print(model)
     

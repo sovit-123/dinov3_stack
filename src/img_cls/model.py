@@ -55,10 +55,13 @@ if __name__ == '__main__':
     from PIL import Image
     from torchvision import transforms
     from torchinfo import summary
+    from src.utils.common import get_dinov3_paths
 
     import numpy as np
+    import os
 
-    # We can give any multiple of 14.
+    DINOV3_REPO, DINOV3_WEIGHTS = get_dinov3_paths()
+
     sample_size = 224
 
     # Define image transformation
@@ -76,7 +79,11 @@ if __name__ == '__main__':
     ])
 
     # Loading the pretrained model without classification head.
-    model = load_model()
+    model = load_model(
+        repo_dir=DINOV3_REPO, 
+        weights=os.path.join(DINOV3_WEIGHTS, 'dinov3_vits16_pretrain_lvd1689m-08c60483.pth'),
+        model_name='dinov3_vits16'
+    )
 
     # Total parameters and trainable parameters.
     total_params = sum(p.numel() for p in model.parameters())
@@ -106,6 +113,10 @@ if __name__ == '__main__':
 
     # Check the forward passes through the complete model.
     # To check what gets fed to the classification layer.
-    model_cls = build_model()
+    model_cls = build_model(
+        repo_dir=DINOV3_REPO, 
+        weights=os.path.join(DINOV3_WEIGHTS, 'dinov3_vits16_pretrain_lvd1689m-08c60483.pth'),
+        model_name='dinov3_vits16'
+    )
     features = model_cls.backbone(model_input)
     print(f"Shape of features getting fed to classification layer: {features.shape}")
