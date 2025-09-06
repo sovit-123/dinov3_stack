@@ -20,6 +20,7 @@ import pathlib
 import yaml
 
 from src.img_cls.model import build_model
+from src.utils.common import get_dinov3_paths
 
 # Construct the argument parser.
 parser = argparse.ArgumentParser()
@@ -47,10 +48,11 @@ parser.add_argument(
 parser.add_argument(
     '--repo-dir',
     dest='repo_dir',
-    help='path to the cloned DINOv3 repository',
-    required=True
+    help='path to the cloned DINOv3 repository'
 )
 args = parser.parse_args()
+
+DINOV3_REPO, DINOV3_WEIGHTS = get_dinov3_paths()
 
 # Constants and other configurations.
 DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -128,7 +130,7 @@ if __name__ == '__main__':
     model = build_model(
         num_classes=len(CLASS_NAMES), 
         model_name=args.model_name,
-        repo_dir=args.repo_dir
+        repo_dir=DINOV3_REPO
     ).to(DEVICE)
     model.load_state_dict(checkpoint['model_state_dict'])
 

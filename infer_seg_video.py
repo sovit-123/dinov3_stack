@@ -4,6 +4,7 @@ from src.img_seg.utils import (
     image_overlay,
     get_segment_labels
 )
+from src.utils.common import get_dinov3_paths
 
 import argparse
 import cv2
@@ -42,8 +43,7 @@ parser.add_argument(
 parser.add_argument(
     '--repo-dir',
     dest='repo_dir',
-    help='path to the cloned DINOv3 repository',
-    required=True
+    help='path to the cloned DINOv3 repository'
 )
 parser.add_argument(
     '--model-name',
@@ -52,6 +52,8 @@ parser.add_argument(
     default='dinov3_vits16'
 )
 args = parser.parse_args()
+
+DINOV3_REPO, DINOV3_WEIGHTS = get_dinov3_paths()
 
 out_dir = 'outputs/inference_results_video'
 os.makedirs(out_dir, exist_ok=True)
@@ -68,7 +70,7 @@ model = Dinov3Segmentation(
     fine_tune=False, 
     weights=None,
     num_classes=len(ALL_CLASSES),
-    repo_dir=args.repo_dir,
+    repo_dir=DINOV3_REPO,
     model_name=args.model_name
 )
 

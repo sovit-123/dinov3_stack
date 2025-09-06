@@ -6,9 +6,27 @@ A repository to apply DINOv3 models for different downstream tasks: ***image cla
 
 It is a mix of MIT and the official DINOv3 License. All the codebase in this repository are completely open and can be used for research, education, and commercial purposes freely. The models trained will be adhering to the DINOv3 License which is included with the repository.
 
-## Download Weights
+## Prerequisites
 
-Download the pretrained backbones weights by following the instructions from the official [DINOv3 repository](https://github.com/facebookresearch/dinov3). 
+### Download Weights
+
+* Download the pretrained backbones weights by following the instructions from the official [DINOv3 repository](https://github.com/facebookresearch/dinov3). 
+
+* ```
+  git clone https://github.com/sovit-123/dinov3_stack.git
+  ```
+
+* Prepare a `.env` file in the cloned project directory with the following content.
+
+  ```bash
+  # Should be absolute path to DINOv3 cloned repository.
+  DINOv3_REPO="/path/to/cloned/dinov3"
+  
+  # Should be absolute path to DINOv3 weights.
+  DINOv3_WEIGHTS="/path/to/downloaded/dinov3/weights"
+  ```
+
+​	The above two paths will be picked up the training and inference scripts while initializing the models.
 
 ## Updates
 
@@ -22,14 +40,12 @@ The `train_classifier.py` in the project root directory is the executable script
 
 For training, make sure that the `--model-name` argument matches correctly with the `--weights` argument.
 
-It is necessary to clone the official [DINOv3 repository](https://github.com/facebookresearch/dinov3) which is accepted by the `--repo-dir` argument.
-
 [Check this](https://github.com/facebookresearch/dinov3?tab=readme-ov-file#pretrained-backbones-via-pytorch-hub) to know all the `--model-name` values that can be passed (e.g. `dinov3_vits16`, etc.)..
 
 * Steps to train:
 
 ```
-python train_classifier.py --train-dir path/to/directory/with/training/class/folder --valid-dir path/to/directory/with/validation/class/folder --epochs <num_epochs> --weights <path/to/downloaded/weights.pth> --repo-dir <path/to/cloned/dinov3> --model-name <model_name>
+python train_classifier.py --train-dir path/to/directory/with/training/class/folder --valid-dir path/to/directory/with/validation/class/folder --epochs <num_epochs> --weights <name/of/dinov3/weights.pth> --model-name <model_name>
 ```
 
 ```
@@ -85,17 +101,17 @@ Check [this dataset on Kaggle](https://www.kaggle.com/datasets/sovitrath/voc-201
 * Training example command:
 
 ```
-python train_segmentation.py --train-images voc_2012_segmentation_data/train_images --train-masks voc_2012_segmentation_data/train_labels --valid-images voc_2012_segmentation_data/valid_images --valid-masks voc_2012_segmentation_data/valid_labels --config segmentation_configs/voc.yaml --repo-dir <path/to/cloned/dinov3> --weights <path/to/downloaded/weights.pth> --model-name <model_name> --epochs 50 --out-dir voc_seg --imgsz 640 640 --batch 12
+python train_segmentation.py --train-images voc_2012_segmentation_data/train_images --train-masks voc_2012_segmentation_data/train_labels --valid-images voc_2012_segmentation_data/valid_images --valid-masks voc_2012_segmentation_data/valid_labels --config segmentation_configs/voc.yaml --weights <name/of/dinov3/weights.pth> --model-name <model_name> --epochs 50 --out-dir voc_seg --imgsz 640 640 --batch 12
 ```
 
 * Image inference using fine-tuned model (use the same configuration YAML file as used during training for the same weights. For example for the above training, we should use `voc.yaml` during inference also.):
 
 ```
-python infer_seg_image.py --input <directory/with/images> --model <path/to/best_iou_weights.pth> --config <dataset/config.yaml> --repo-dir <path/to/cloned/dinov3> --model-name <model_name> --imgsz 640 640
+python infer_seg_image.py --input <directory/with/images> --model <path/to/best_iou_weights.pth> --config <dataset/config.yaml> --model-name <model_name> --imgsz 640 640
 ```
 
 * Video inference using fine-tuned model (use the same configuration YAML file as used during training for the same weights. For example for the above training, we should use `voc.yaml` during inference also.):
 
 ```
-python infer_seg_video.py --input <path/to/video.mp4> --model <path.to/best_iou_weights.pth> --config <dataset/config.yaml> --repo-dir <path/to/cloned/dinov3> --model-name <model_name> --imgsz 640 640
+python infer_seg_video.py --input <path/to/video.mp4> --model <path.to/best_iou_weights.pth> --config <dataset/config.yaml> --model-name <model_name> --imgsz 640 640
 ```
