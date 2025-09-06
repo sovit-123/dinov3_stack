@@ -10,6 +10,7 @@ from src.img_seg.datasets import get_images, get_dataset, get_data_loaders
 from src.img_seg.model import Dinov3Segmentation
 from src.img_seg.engine import train, validate
 from src.img_seg.utils import save_model, SaveBestModel, save_plots, SaveBestModelIOU
+from src.utils.common import get_dinov3_paths
 from torch.optim.lr_scheduler import MultiStepLR
 from torchinfo import summary
 
@@ -103,8 +104,7 @@ parser.add_argument(
 parser.add_argument(
     '--repo-dir',
     dest='repo_dir',
-    help='path to the cloned DINOv3 repository',
-    required=True
+    help='path to the cloned DINOv3 repository'
 )
 parser.add_argument(
     '--model-name',
@@ -119,6 +119,8 @@ parser.add_argument(
 )
 args = parser.parse_args()
 print(args)
+
+DINOV3_REPO, DINOV3_WEIGHTS = get_dinov3_paths()
 
 if __name__ == '__main__':
     # Create a directory with the model name for outputs.
@@ -139,9 +141,9 @@ if __name__ == '__main__':
     model = Dinov3Segmentation(
         fine_tune=args.fine_tune,
         num_classes=len(ALL_CLASSES), 
-        weights=args.weights,
+        weights=os.path.join(DINOV3_WEIGHTS, args.weights),
         model_name=args.model_name,
-        repo_dir=args.repo_dir
+        repo_dir=DINOV3_REPO
     )
     _ = model.to(device)
     summary(

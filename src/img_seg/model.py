@@ -87,7 +87,12 @@ class Dinov3Segmentation(nn.Module):
 if __name__ == '__main__':
     from PIL import Image
     from torchvision import transforms
+    from src.utils.common import get_dinov3_paths
+
     import numpy as np
+    import os
+
+    DINOV3_REPO, DINOV3_WEIGHTS = get_dinov3_paths()
 
     input_size = 640
 
@@ -104,7 +109,11 @@ if __name__ == '__main__':
         )
     ])
 
-    model = Dinov3Segmentation()
+    model = Dinov3Segmentation(
+        repo_dir=DINOV3_REPO, 
+        weights=os.path.join(DINOV3_WEIGHTS, 'dinov3_vits16_pretrain_lvd1689m-08c60483.pth'),
+        model_name='dinov3_vits16'
+    )
     model.eval()
     print(model)
 
