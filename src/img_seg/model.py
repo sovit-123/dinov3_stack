@@ -48,26 +48,26 @@ class Dinov3Segmentation(nn.Module):
     ):
         super(Dinov3Segmentation, self).__init__()
 
-        backbone_model = load_model(
+        self.backbone_model = load_model(
             weights=weights, model_name=model_name, repo_dir=repo_dir
         )
         self.num_classes = num_classes
 
         if fine_tune:
-            for name, param in backbone_model.named_parameters():
+            for name, param in self.backbone_model.named_parameters():
                 param.requires_grad = True
         else:
-            for name, param in backbone_model.named_parameters():
+            for name, param in self.backbone_model.named_parameters():
                 param.requires_grad = False
 
-        decode_head = SimpleDecoder(
-            in_channels=backbone_model.norm.normalized_shape[0], 
+        self.decode_head = SimpleDecoder(
+            in_channels=self.backbone_model.norm.normalized_shape[0], 
             nc=self.num_classes
         )
 
         self.model = nn.Sequential(OrderedDict([
-            ('backbone', backbone_model),
-            ('decode_head', decode_head)
+            ('backbone', self.backbone_model),
+            ('decode_head', self.decode_head)
         ]))
 
     def forward(self, x):
