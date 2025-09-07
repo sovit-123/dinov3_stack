@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
-import math
 
-from collections import OrderedDict
 from torchinfo import summary
 
 
@@ -65,14 +63,9 @@ class Dinov3Segmentation(nn.Module):
             nc=self.num_classes
         )
 
-        self.model = nn.Sequential(OrderedDict([
-            ('backbone', self.backbone_model),
-            ('decode_head', self.decode_head)
-        ]))
-
     def forward(self, x):
         # Backbone forward pass
-        features = self.model.backbone.get_intermediate_layers(
+        features = self.backbone_model.get_intermediate_layers(
             x, 
             n=1, 
             reshape=True, 
@@ -81,7 +74,7 @@ class Dinov3Segmentation(nn.Module):
         )[0]
 
         # Decoder forward pass
-        classifier_out = self.model.decode_head(features)
+        classifier_out = self.decode_head(features)
         return classifier_out
     
 if __name__ == '__main__':

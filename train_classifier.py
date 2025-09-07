@@ -7,7 +7,7 @@ import random
 import numpy as np
 
 from tqdm.auto import tqdm
-from src.img_cls.model import build_model
+from src.img_cls.model import Dinov3Classification
 from src.img_cls.datasets import get_datasets, get_data_loaders
 from src.img_cls.utils import save_model, save_plots, SaveBestModel
 from src.utils.common import get_dinov3_paths
@@ -190,7 +190,7 @@ if __name__ == '__main__':
     print(f"Epochs to train for: {epochs}\n")
 
     # Load the model.
-    model = build_model(
+    model = Dinov3Classification(
         num_classes=len(dataset_classes), 
         fine_tune=args.fine_tune, 
         weights=os.path.join(DINOV3_WEIGHTS, args.weights),
