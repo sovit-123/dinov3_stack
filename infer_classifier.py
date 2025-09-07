@@ -19,7 +19,7 @@ import argparse
 import pathlib
 import yaml
 
-from src.img_cls.model import build_model
+from src.img_cls.model import Dinov3Classification
 from src.utils.common import get_dinov3_paths
 
 # Construct the argument parser.
@@ -127,7 +127,7 @@ if __name__ == '__main__':
 
     checkpoint = torch.load(weights_path)
     # Load the model.
-    model = build_model(
+    model = Dinov3Classification(
         num_classes=len(CLASS_NAMES), 
         model_name=args.model_name,
         repo_dir=DINOV3_REPO
