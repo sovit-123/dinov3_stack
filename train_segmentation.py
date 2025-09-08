@@ -117,6 +117,13 @@ parser.add_argument(
     dest='fine_tune',
     action='store_true'
 )
+parser.add_argument(
+    '--feautre-extractor',
+    dest='feature_extractor',
+    default='multi',
+    choices=['last', 'multi'],
+    help='whether to use layer or multiple layers as features'
+)
 args = parser.parse_args()
 print(args)
 
@@ -143,7 +150,8 @@ if __name__ == '__main__':
         num_classes=len(ALL_CLASSES), 
         weights=os.path.join(DINOV3_WEIGHTS, args.weights),
         model_name=args.model_name,
-        repo_dir=DINOV3_REPO
+        repo_dir=DINOV3_REPO,
+        feature_extractor=args.feature_extractor
     )
     _ = model.to(device)
     summary(

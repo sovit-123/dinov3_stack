@@ -60,6 +60,13 @@ parser.add_argument(
     help='name of the model, check: https://github.com/facebookresearch/dinov3?tab=readme-ov-file#pretrained-backbones-via-pytorch-hub',
     default='dinov3_vits16'
 )
+parser.add_argument(
+    '--feautre-extractor',
+    dest='feature_extractor',
+    default='multi',
+    choices=['last', 'multi'],
+    help='whether to use layer or multiple layers as features'
+)
 args = parser.parse_args()
 
 DINOV3_REPO, DINOV3_WEIGHTS = get_dinov3_paths()
@@ -80,7 +87,8 @@ model = Dinov3Segmentation(
     weights=None,
     num_classes=len(ALL_CLASSES),
     repo_dir=DINOV3_REPO,
-    model_name=args.model_name
+    model_name=args.model_name,
+    feature_extractor=args.feature_extractor
 )
 
 ckpt = torch.load(args.model)
