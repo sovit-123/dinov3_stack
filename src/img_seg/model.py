@@ -3,6 +3,15 @@ import torch.nn as nn
 
 from torchinfo import summary
 
+model_feature_layers = {
+    'dinov3_vits16': [3, 5, 7, 11],
+    'dinov3_vits16plus': [3, 5, 7, 11],
+    'dinov3_vitb16': [3, 5, 7, 11],
+    'dinov3_vitl16': [7, 11, 15, 23],
+    'dinov3_vith16plus': [9, 13, 18, 26],
+    'dinov3_vit7b16': [11, 16, 21, 31]
+}
+
 
 def load_model(weights: str=None, model_name: str=None, repo_dir: str=None):
     if weights is not None:
@@ -42,9 +51,12 @@ class Dinov3Segmentation(nn.Module):
         num_classes: int=2,
         weights: str=None,
         model_name: str=None,
-        repo_dir: str=None
+        repo_dir: str=None,
+        feature_extractor: str='last' # OR 'multi'
     ):
         super(Dinov3Segmentation, self).__init__()
+
+        self.model_name = model_name
 
         self.backbone_model = load_model(
             weights=weights, model_name=model_name, repo_dir=repo_dir
@@ -58,8 +70,11 @@ class Dinov3Segmentation(nn.Module):
             for name, param in self.backbone_model.named_parameters():
                 param.requires_grad = False
 
+        self.feature_extractor_layers = 1 if feature_extractor == 'last' else model_feature_layers[self.model_name]
+        decode_head_in_channels = self.backbone_model.norm.normalized_shape[0] if feature_extractor == 'last' else self.backbone_model.norm.normalized_shape[0] * 4
+
         self.decode_head = SimpleDecoder(
-            in_channels=self.backbone_model.norm.normalized_shape[0], 
+            in_channels=decode_head_in_channels, 
             nc=self.num_classes
         )
 
@@ -67,14 +82,22 @@ class Dinov3Segmentation(nn.Module):
         # Backbone forward pass
         features = self.backbone_model.get_intermediate_layers(
             x, 
-            n=1, 
+            n=self.feature_extractor_layers, 
             reshape=True, 
             return_class_token=False, 
             norm=True
-        )[0]
+        )
+
+        # for i, feat in enumerate(features):
+        #     print(f"Feature {i}: {feat.shape}")
+            
+        concatednated_features = torch.cat(features, dim=1)
+
+        # print('Final feature shape: ', concatednated_features.shape)
+        # exit(0)
 
         # Decoder forward pass
-        classifier_out = self.decode_head(features)
+        classifier_out = self.decode_head(concatednated_features)
         return classifier_out
     
 if __name__ == '__main__':
@@ -102,27 +125,40 @@ if __name__ == '__main__':
         )
     ])
 
-    model = Dinov3Segmentation(
-        repo_dir=DINOV3_REPO, 
-        weights=os.path.join(DINOV3_WEIGHTS, 'dinov3_vits16_pretrain_lvd1689m-08c60483.pth'),
-        model_name='dinov3_vits16'
-    )
-    model.eval()
-    print(model)
+    model_names = {
+        'dinov3_vits16': 'dinov3_vits16_pretrain_lvd1689m-08c60483.pth',
+        'dinov3_vits16plus': 'dinov3_vits16plus_pretrain_lvd1689m-4057cbaa.pth',
+        'dinov3_vitb16': 'dinov3_vitb16_pretrain_lvd1689m-73cec8be.pth',
+        'dinov3_vitl16': 'dinov3_vitl16_pretrain_lvd1689m-8aa4cbdd.pth',
+        'dinov3_vith16plus': 'dinov3_vith16plus_pretrain_lvd1689m-7c1da9a5.pth',
+        # 'dinov3_vit7b16': [11, 16, 21, 31]
+    }
 
-    random_image = Image.fromarray(np.ones(
-        (input_size, input_size, 3), dtype=np.uint8)
-    )
-    x = transform(random_image).unsqueeze(0)
-
-    with torch.no_grad():
-        outputs = model(x)
+    for model_name in model_names:
+        print('Testing: ', model_name)
+        model = Dinov3Segmentation(
+            repo_dir=DINOV3_REPO, 
+            weights=os.path.join(DINOV3_WEIGHTS, model_names[model_name]),
+            model_name=model_name,
+            feature_extractor='multi' # OR 'last'
+        )
+        model.eval()
+        print(model)
     
-    print(outputs.shape)
-
-    summary(
-        model, 
-        input_data=x,
-        col_names=('input_size', 'output_size', 'num_params'),
-        row_settings=['var_names'],
-    )
+        random_image = Image.fromarray(np.ones(
+            (input_size, input_size, 3), dtype=np.uint8)
+        )
+        x = transform(random_image).unsqueeze(0)
+    
+        with torch.no_grad():
+            outputs = model(x)
+        
+        print(outputs.shape)
+    
+        summary(
+            model, 
+            input_data=x,
+            col_names=('input_size', 'output_size', 'num_params'),
+            row_settings=['var_names'],
+        )
+        print('#' * 50, '\n\n')
