@@ -80,7 +80,7 @@ model = Dinov3Segmentation(
     repo_dir=DINOV3_REPO,
     model_name=args.model_name,
     feature_extractor=args.feature_extractor
-)
+    )
 
 ckpt = torch.load(args.model)
 model.load_state_dict(ckpt['model_state_dict'])
@@ -98,14 +98,19 @@ save_name = args.input.split(os.path.sep)[-1].split('.')[0]
 #                     (frame_width, frame_height))
 out = cv2.VideoWriter(f"{out_dir}/{save_name}.mp4", 
                     cv2.VideoWriter_fourcc(*'mp4v'), vid_fps, 
-                    (args.imgsz[1], args.imgsz[0]))
+                    (frame_width, frame_height))
 
 frame_count = 0
 total_fps = 0
 while cap.isOpened:
     ret, frame = cap.read()
+
     if ret:
         frame_count += 1
+
+        # Get original frame size.
+        imgsz = frame.shape[:2]
+
         image = frame
         if args.imgsz is not None:
             image = cv2.resize(image, (args.imgsz[0], args.imgsz[1]))
@@ -122,7 +127,11 @@ while cap.isOpened:
         
         # Get segmentation map.
         seg_map = draw_segmentation_map(labels.cpu(), viz_map=VIZ_MAP)
-        outputs = image_overlay(image, seg_map)
+        # Resize segmentation map to original frame size.
+        seg_map = cv2.resize(seg_map, imgsz[::-1])
+
+        outputs = image_overlay(frame[..., ::-1], seg_map) # Original frame in RGB format, and seg map.
+
         cv2.putText(
             outputs,
             f"{fps:.1f} FPS",

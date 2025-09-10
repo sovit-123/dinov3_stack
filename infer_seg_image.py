@@ -97,9 +97,13 @@ _ = model.to(args.device).eval()
 
 image_paths = glob.glob(os.path.join(args.input, '*'))
 for image_path in image_paths:
-    image = cv2.imread(image_path)
+    orig_image = cv2.imread(image_path)
+
+    # Get original image size (h, w).
+    imgsz = orig_image.shape[:2]
+
     if args.imgsz is not None:
-        image = cv2.resize(image, (args.imgsz[0], args.imgsz[1]))
+        image = cv2.resize(orig_image, (args.imgsz[0], args.imgsz[1]))
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     
     # Get labels.
@@ -107,8 +111,10 @@ for image_path in image_paths:
     
     # Get segmentation map.
     seg_map = draw_segmentation_map(labels.cpu(), viz_map=VIZ_MAP)
+    # Resize segmentation map to original image size.
+    seg_map = cv2.resize(seg_map, imgsz[::-1])
 
-    outputs = image_overlay(image, seg_map)
+    outputs = image_overlay(orig_image[..., ::-1], seg_map) # Original image in RGB format, and seg map.
     cv2.imshow('Image', outputs)
     cv2.waitKey(0)
     
