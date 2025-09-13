@@ -8,3 +8,4 @@ weights/*
 input/*
 !input/readme.txt
 outputs/
+src/detection/config_test.py

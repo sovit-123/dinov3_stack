@@ -156,7 +156,8 @@ def create_train_loader(train_dataset, batch_size, num_workers=0):
         shuffle=True,
         num_workers=num_workers,
         collate_fn=collate_fn,
-        drop_last=False
+        drop_last=False,
+        pin_memory=True
     )
     return train_loader
 def create_valid_loader(valid_dataset, batch_size, num_workers=0):
@@ -166,7 +167,8 @@ def create_valid_loader(valid_dataset, batch_size, num_workers=0):
         shuffle=False,
         num_workers=num_workers,
         collate_fn=collate_fn,
-        drop_last=False
+        drop_last=False,
+        pin_memory=True
     )
     return valid_loader
 

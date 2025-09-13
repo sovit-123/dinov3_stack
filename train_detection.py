@@ -32,6 +32,22 @@ import matplotlib.pyplot as plt
 import time
 import os
 import argparse
+import random
+import numpy as np
+import torch.multiprocessing as mp
+
+# Set sharing strategy
+torch.multiprocessing.set_sharing_strategy('file_system')
+
+seed = 42
+random.seed(seed)
+np.random.seed(seed)
+torch.manual_seed(seed)
+torch.cuda.manual_seed(seed)
+torch.cuda.manual_seed(seed)
+torch.cuda.manual_seed_all(seed)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = True
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -139,6 +155,11 @@ parser.add_argument(
     type=int,
     help='number of parllel workers for the data loader'
 )
+parser.add_argument(
+    '--optimizer',
+    default='AdamW',
+    choices=['SGD', 'AdamW']
+)
 args = parser.parse_args()
 print(args)
 
@@ -242,13 +263,6 @@ if __name__ == '__main__':
     print(f"Number of training samples: {len(train_dataset)}")
     print(f"Number of validation samples: {len(valid_dataset)}\n")
 
-    # Initialize the model and move to the computation device.
-    # model = Dinov3Detection(
-    #     pretrained=True, 
-    #     num_classes=NUM_CLASSES, 
-    #     resolution=(RESIZE_TO, RESIZE_TO)
-    # )
-
     # model = Dinov3Detection(
     #     fine_tune=args.fine_tune,
     #     num_classes=NUM_CLASSES, 
@@ -277,13 +291,15 @@ if __name__ == '__main__':
     print(f"{total_trainable_params:,} training parameters.")
     params = [p for p in model.parameters() if p.requires_grad]
 
-    # optimizer = torch.optim.SGD(
-    #     params, lr=args.lr, momentum=0.9, nesterov=True
-    # )
+    if args.optimizer == 'SGD':
+        optimizer = torch.optim.SGD(
+            params, lr=args.lr, momentum=0.9, nesterov=True
+        )
+    elif args.optimizer == 'AdamW':
+        optimizer = torch.optim.AdamW(params, lr=args.lr)
 
-    optimizer = torch.optim.AdamW(params, lr=args.lr)
-
-    print(optimizer)
+    # optimizer = getattr(torch.optim, args.optimizer)(params, lr=args.lr, momentum=0.9, nesterov=True)
+    print(f"Using {optimizer} for {args.model_name}")
 
     scheduler = MultiStepLR(
         optimizer=optimizer, 
@@ -344,3 +360,5 @@ if __name__ == '__main__':
         # Save mAP plot.
         save_mAP(OUT_DIR, map_50_list, map_list)
         scheduler.step()
+        last_lr = scheduler.get_last_lr()
+        print(f"LR for next epoch: {last_lr}")
