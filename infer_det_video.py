@@ -7,7 +7,7 @@ import argparse
 import pathlib
 
 from src.detection.config import (
-    NUM_CLASSES, DEVICE, CLASSES, RESIZE_TO
+    NUM_CLASSES, CLASSES
 )
 from src.detection.model import dinov3_detection
 from src.utils.common import get_dinov3_paths
@@ -43,6 +43,8 @@ parser.add_argument(
     default='dinov3_vits16'
 )
 args = parser.parse_args()
+
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 DINOV3_REPO, DINOV3_WEIGHTS = get_dinov3_paths()
 
