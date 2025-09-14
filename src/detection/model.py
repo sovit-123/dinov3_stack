@@ -123,7 +123,10 @@ def dinov3_detection(
         fine_tune=fine_tune
     )
 
-    out_channels = [768, 768, 768, 768, 768, 768]
+    # print(backbone.backbone_model.norms[3].normalized_shape[0])
+
+    # out_channels = [768, 768, 768, 768, 768, 768]
+    out_channels = [backbone.backbone_model.norms[3].normalized_shape[0]] * 6
     anchor_generator = DefaultBoxGenerator(
         [[2], [2, 3], [2, 3], [2, 3], [2], [2]],
     )
@@ -171,6 +174,9 @@ if __name__ == '__main__':
 
     model_names = {
         'dinov3_convnext_tiny': 'dinov3_convnext_tiny_pretrain_lvd1689m-21b726bb.pth',
+        'dinov3_convnext_small': 'dinov3_convnext_small_pretrain_lvd1689m-296db49d.pth',
+        'dinov3_convnext_base': 'dinov3_convnext_base_pretrain_lvd1689m-801f2ba9.pth',
+        'dinov3_convnext_large': 'dinov3_convnext_large_pretrain_lvd1689m-61fa432d.pth'
         # 'dinov3_vits16': 'dinov3_vits16_pretrain_lvd1689m-08c60483.pth',
         # 'dinov3_vits16plus': 'dinov3_vits16plus_pretrain_lvd1689m-4057cbaa.pth',
         # 'dinov3_vitb16': 'dinov3_vitb16_pretrain_lvd1689m-73cec8be.pth',
