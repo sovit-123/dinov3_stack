@@ -1,12 +1,3 @@
-from src.detection.config import (
-    NUM_CLASSES, 
-    VISUALIZE_TRANSFORMED_IMAGES, 
-    TRAIN_IMG,
-    TRAIN_ANNOT,
-    VALID_IMG,
-    VALID_ANNOT,
-    CLASSES
-)
 # from src.detection.model import Dinov3Detection
 from src.detection.model import dinov3_detection
 from src.detection.custom_utils import (
@@ -35,6 +26,7 @@ import argparse
 import random
 import numpy as np
 import torch.multiprocessing as mp
+import yaml
 
 # Set sharing strategy
 torch.multiprocessing.set_sharing_strategy('file_system')
@@ -86,35 +78,6 @@ parser.add_argument(
     nargs='+',
     type=int
 )
-# parser.add_argument(
-#     '--train-images',
-#     dest='train_images',
-#     required=True,
-#     help='path to training images'
-# )
-# parser.add_argument(
-#     '--train-masks',
-#     dest='train_masks',
-#     required=True,
-#     help='path to training masks'
-# )
-# parser.add_argument(
-#     '--valid-images',
-#     dest='valid_images',
-#     required=True,
-#     help='path to validation images'
-# )
-# parser.add_argument(
-#     '--valid-masks',
-#     dest='valid_masks',
-#     required=True,
-#     help='path to validation masks'
-# )
-# parser.add_argument(
-#     '--config',
-#     required=True,
-#     help='path to the dataset configuration file'
-# )
 parser.add_argument(
     '--out-dir',
     dest='out_dir',
@@ -160,6 +123,11 @@ parser.add_argument(
     default='AdamW',
     choices=['SGD', 'AdamW']
 )
+parser.add_argument(
+    '--config',
+    help='path to the configuration yaml file in detection_configs folder',
+    default='detection_configs/voc.yaml'
+)
 args = parser.parse_args()
 print(args)
 
@@ -168,9 +136,25 @@ print(args)
 plt.style.use('ggplot')
 
 seed = 42
+random.seed(seed)
+np.random.seed(seed)
 torch.manual_seed(seed)
 torch.cuda.manual_seed(seed)
-torch.cuda.manual_seed_all(seed) 
+torch.cuda.manual_seed(seed)
+torch.cuda.manual_seed_all(seed)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = True
+
+with open(args.config, 'r') as file:
+    config = yaml.safe_load(file)
+
+TRAIN_IMG =  config['TRAIN_IMG']
+TRAIN_ANNOT = config['TRAIN_ANNOT']
+VALID_IMG = config['VALID_IMG']
+VALID_ANNOT = config['VALID_ANNOT']
+CLASSES = config['CLASSES']
+NUM_CLASSES = len(CLASSES)
+VISUALIZE_TRANSFORMED_IMAGES = config['VISUALIZE_TRANSFORMED_IMAGES']
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

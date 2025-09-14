@@ -5,10 +5,8 @@ import os
 import time
 import argparse
 import pathlib
+import yaml
 
-from src.detection.config import (
-    NUM_CLASSES, CLASSES
-)
 from src.detection.model import dinov3_detection
 from src.utils.common import get_dinov3_paths
 
@@ -42,7 +40,18 @@ parser.add_argument(
     help='name of the model, check: https://github.com/facebookresearch/dinov3?tab=readme-ov-file#pretrained-backbones-via-pytorch-hub',
     default='dinov3_vits16'
 )
+parser.add_argument(
+    '--config',
+    help='path to the configuration yaml file in detection_configs folder',
+    default='detection_configs/voc.yaml'
+)
 args = parser.parse_args()
+
+with open(args.config, 'r') as file:
+    config = yaml.safe_load(file)
+
+CLASSES = config['CLASSES']
+NUM_CLASSES = len(CLASSES)
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

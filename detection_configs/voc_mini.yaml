@@ -1,0 +1,17 @@
+# Training images and XML files directory.
+TRAIN_IMG: '/media/sovit/crucial1tb/my_data/Data_Science/projects/Computer_Vision/object_detection/input/voc_xml_128_64/train/images'
+TRAIN_ANNOT: '/media/sovit/crucial1tb/my_data/Data_Science/projects/Computer_Vision/object_detection/input/voc_xml_128_64/train/annotations'
+# Validation images and XML files directory.
+VALID_IMG: '/media/sovit/crucial1tb/my_data/Data_Science/projects/Computer_Vision/object_detection/input/voc_xml_128_64/val/images'
+VALID_ANNOT: '/media/sovit/crucial1tb/my_data/Data_Science/projects/Computer_Vision/object_detection/input/voc_xml_128_64/val/annotations'
+
+# Classes: 0 index is reserved for background.
+CLASSES: [
+    '__background__',
+    'aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat',
+    'chair', 'cow', 'diningtable', 'dog', 'horse', 'motorbike', 'person',
+    'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor'
+]
+
+# Whether to visualize images after crearing the data loaders.
+VISUALIZE_TRANSFORMED_IMAGES: false
