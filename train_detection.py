@@ -305,7 +305,7 @@ if __name__ == '__main__':
     # Whether to show transformed images from data loader or not.
     if VISUALIZE_TRANSFORMED_IMAGES:
         from src.detection.custom_utils import show_tranformed_image
-        show_tranformed_image(train_loader, device=DEVICE)
+        show_tranformed_image(train_loader, device=DEVICE, classes=CLASSES)
 
     # To save best model.
     save_best_model = SaveBestModel()

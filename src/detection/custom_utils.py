@@ -5,7 +5,6 @@ import torch
 import matplotlib.pyplot as plt
 
 from albumentations.pytorch import ToTensorV2
-from src.detection.config import CLASSES
 
 plt.style.use('ggplot')
 
@@ -92,7 +91,7 @@ def get_valid_transform():
     })
 
 
-def show_tranformed_image(train_loader, device):
+def show_tranformed_image(train_loader, device, classes):
     """
     This function shows the transformed images from the `train_loader`.
     Helps to check whether the tranformed images along with the corresponding
@@ -113,7 +112,7 @@ def show_tranformed_image(train_loader, device):
                             (box[0], box[1]),
                             (box[2], box[3]),
                             (0, 0, 255), 2)
-                cv2.putText(sample, CLASSES[labels[box_num]], 
+                cv2.putText(sample, classes[labels[box_num]], 
                             (box[0], box[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 
                             1.0, (0, 0, 255), 2)
             cv2.imshow('Transformed image', sample)
