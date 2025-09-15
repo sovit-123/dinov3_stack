@@ -16,3 +16,5 @@
         * https://www.pexels.com/video/traffic-in-a-narrow-street-2843866/
     * `video_4.mp4`: Video by  Anastasia  Shuraeva: https://www.pexels.com/video/man-doing-stunts-on-a-motorbike-on-the-street-9607286/
         * https://www.pexels.com/video/man-doing-stunts-on-a-motorbike-on-the-street-9607286/
+    * `video_5.mp4`: Video by Hirsh Philippe: https://www.pexels.com/video/people-taking-photo-of-the-dog-4473917/
+        * https://www.pexels.com/video/people-taking-photo-of-the-dog-4473917/
