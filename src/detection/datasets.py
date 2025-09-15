@@ -177,15 +177,34 @@ def create_valid_loader(valid_dataset, batch_size, num_workers=0):
 # Terminal to visualize sample images
 # USAGE: python datasets.py
 if __name__ == '__main__':
-    from config import (
-        CLASSES, RESIZE_TO, TRAIN_IMG, TRAIN_ANNOT
-    )   
+    import yaml
+    import argparse
+
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--config',
+        help='path to the configuration yaml file in detection_configs folder',
+        default='detection_configs/voc.yaml'
+    )
+    args = parser.parse_args()
+    print(args)
+
+    with open(args.config, 'r') as file:
+        config = yaml.safe_load(file)
+
+    TRAIN_IMG =  config['TRAIN_IMG']
+    TRAIN_ANNOT = config['TRAIN_ANNOT']
+    VALID_IMG = config['VALID_IMG']
+    VALID_ANNOT = config['VALID_ANNOT']
+    CLASSES = config['CLASSES']
+
     # sanity check of the Dataset pipeline with sample visualization
     dataset = CustomDataset(
         TRAIN_IMG, 
         TRAIN_ANNOT, 
-        RESIZE_TO, 
-        RESIZE_TO, 
+        640, 
+        640, 
         CLASSES,
         get_train_transform()
     )
