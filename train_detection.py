@@ -130,7 +130,7 @@ parser.add_argument(
 )
 parser.add_argument(
     '--head',
-    default='ssd',
+    default='retinanet',
     choices=['ssd', 'retinanet'],
     help='whether to build with SSD or RetinaNet detection head'
 )
