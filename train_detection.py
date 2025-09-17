@@ -128,6 +128,12 @@ parser.add_argument(
     help='path to the configuration yaml file in detection_configs folder',
     default='detection_configs/voc.yaml'
 )
+parser.add_argument(
+    '--head',
+    default='retinanet',
+    choices=['ssd', 'retinanet'],
+    help='whether to build with SSD or RetinaNet detection head'
+)
 args = parser.parse_args()
 print(args)
 
@@ -262,7 +268,8 @@ if __name__ == '__main__':
         weights=os.path.join(DINOV3_WEIGHTS, args.weights),
         model_name=args.model_name,
         repo_dir=DINOV3_REPO,
-        feature_extractor=args.feature_extractor
+        feature_extractor=args.feature_extractor,
+        head=args.head
     )
 
     model = model.to(DEVICE)

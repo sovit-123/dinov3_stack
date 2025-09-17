@@ -7,6 +7,9 @@ from torchvision.models.detection.ssd import (
     DefaultBoxGenerator,
     SSDHead
 )
+from torchvision.models.detection.retinanet import (
+    RetinaNet, RetinaNetHead, AnchorGenerator
+)
 
 def load_model(weights: str=None, model_name: str=None, repo_dir: str=None):
     if weights is not None:
@@ -114,7 +117,8 @@ def dinov3_detection(
     repo_dir: str=None,
     resolution: list=[640, 640],
     nms: float=0.45,
-    feature_extractor: str='last' # OR 'multi'
+    feature_extractor: str='last', # OR 'multi'
+    head: str='ssd' # Detection head type, ssd or retinanet
 ):
     backbone = Dinov3Backbone(
         weights=weights, 
@@ -123,25 +127,38 @@ def dinov3_detection(
         fine_tune=fine_tune
     )
 
-    # print(backbone.backbone_model.norms[3].normalized_shape[0])
+    if head == 'ssd':
+        out_channels = [backbone.backbone_model.norm.normalized_shape[0]] * 6
+        anchor_generator = DefaultBoxGenerator(
+            aspect_ratios=[[2], [2, 3], [2, 3], [2, 3], [2], [2]],
+        )
+        num_anchors = anchor_generator.num_anchors_per_location()
+        det_head = SSDHead(out_channels, num_anchors, num_classes=num_classes)
+    
+        model = SSD(
+            backbone=backbone,
+            num_classes=num_classes,
+            anchor_generator=anchor_generator,
+            size=resolution,
+            head=det_head,
+            nms_thresh=nms
+        )
+    
+    elif head == 'retinanet':
+        backbone.out_channels = backbone.backbone_model.norm.normalized_shape[0]
+        anchor_sizes = ((32, 64, 128, 256, 512),)  # one tuple, for one feature map
+        aspect_ratios = ((0.5, 1.0, 2.0),)         # one tuple, same idea
+        anchor_generator = AnchorGenerator(anchor_sizes, aspect_ratios)
 
-    # out_channels = [768, 768, 768, 768, 768, 768]
-    out_channels = [backbone.backbone_model.norm.normalized_shape[0]] * 6
-    anchor_generator = DefaultBoxGenerator(
-        [[2], [2, 3], [2, 3], [2, 3], [2], [2]],
-    )
-    num_anchors = anchor_generator.num_anchors_per_location()
-
-    head = SSDHead(out_channels, num_anchors, num_classes=num_classes)
-
-    model = SSD(
-        backbone=backbone,
-        num_classes=num_classes,
-        anchor_generator=anchor_generator,
-        size=resolution,
-        head=head,
-        nms_thresh=nms
-    )
+        model = RetinaNet(
+            backbone=backbone,
+            num_classes=num_classes,
+            anchor_generator=anchor_generator,
+            min_size=resolution[0],
+            max_size=resolution[1],
+            # head=head,
+            nms_thresh=nms
+        )
 
     return model
 
@@ -184,37 +201,40 @@ if __name__ == '__main__':
         'dinov3_vith16plus': 'dinov3_vith16plus_pretrain_lvd1689m-7c1da9a5.pth',
     }
 
-    for model_name in model_names:
-        print('Testing: ', model_name)
-        # model = Dinov3Detection(
-        #     repo_dir=DINOV3_REPO, 
-        #     weights=os.path.join(DINOV3_WEIGHTS, model_names[model_name]),
-        #     model_name=model_name,
-        #     feature_extractor='last' # OR 'last'
-        # )
-        model = dinov3_detection(
-            repo_dir=DINOV3_REPO, 
-            weights=os.path.join(DINOV3_WEIGHTS, model_names[model_name]),
-            model_name=model_name,
-            feature_extractor='last' # OR 'last'
-        )
-        model.eval()
-        print(model)
-    
-        random_image = Image.fromarray(np.ones(
-            (input_size, input_size, 3), dtype=np.uint8)
-        )
-        x = transform(random_image).unsqueeze(0)
-    
-        with torch.no_grad():
-            outputs = model(x)
+    for head in ['ssd', 'retinanet']:
+        print(f"Building {head} models...\n\n")
+        for model_name in model_names:
+            print('Testing: ', model_name)
+            # model = Dinov3Detection(
+            #     repo_dir=DINOV3_REPO, 
+            #     weights=os.path.join(DINOV3_WEIGHTS, model_names[model_name]),
+            #     model_name=model_name,
+            #     feature_extractor='last' # OR 'last'
+            # )
+            model = dinov3_detection(
+                repo_dir=DINOV3_REPO, 
+                weights=os.path.join(DINOV3_WEIGHTS, model_names[model_name]),
+                model_name=model_name,
+                feature_extractor='last', # OR 'last'
+                head=head
+            )
+            model.eval()
+            print(model)
         
-        print(outputs)
-    
-        summary(
-            model, 
-            input_data=x,
-            col_names=('input_size', 'output_size', 'num_params'),
-            row_settings=['var_names'],
-        )
-        print('#' * 50, '\n\n')
+            random_image = Image.fromarray(np.ones(
+                (input_size, input_size, 3), dtype=np.uint8)
+            )
+            x = transform(random_image).unsqueeze(0)
+        
+            with torch.no_grad():
+                outputs = model(x)
+            
+            print(outputs)
+        
+            summary(
+                model, 
+                input_data=x,
+                col_names=('input_size', 'output_size', 'num_params'),
+                row_settings=['var_names'],
+            )
+            print('#' * 50, '\n\n')
