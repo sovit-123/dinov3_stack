@@ -132,6 +132,13 @@ def dinov3_detection(
         anchor_generator = DefaultBoxGenerator(
             aspect_ratios=[[2], [2, 3], [2, 3], [2, 3], [2], [2]],
         )
+        ###########################################
+        # out_channels = [backbone.backbone_model.norm.normalized_shape[0]] * 6
+        # anchor_generator = DefaultBoxGenerator(
+            # aspect_ratios=[[2], [2, 3], [2, 3], [2, 3], [2], [2]],
+            # steps=[16, 32, 64, 100, 300, 600]
+        # )
+        
         num_anchors = anchor_generator.num_anchors_per_location()
         det_head = SSDHead(out_channels, num_anchors, num_classes=num_classes)
     
