@@ -45,6 +45,12 @@ parser.add_argument(
     help='path to the configuration yaml file in detection_configs folder',
     default='detection_configs/voc.yaml'
 )
+parser.add_argument(
+    '--head',
+    default='retinanet',
+    choices=['ssd', 'retinanet'],
+    help='whether to build with SSD or RetinaNet detection head'
+)
 args = parser.parse_args()
 
 with open(args.config, 'r') as file:
@@ -66,7 +72,8 @@ COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
 model = dinov3_detection(
     num_classes=NUM_CLASSES, 
     model_name=args.model_name,
-    repo_dir=DINOV3_REPO
+    repo_dir=DINOV3_REPO,
+    head=args.head
 )
 checkpoint = torch.load(args.model, map_location=DEVICE)
 model.load_state_dict(checkpoint['model_state_dict'])

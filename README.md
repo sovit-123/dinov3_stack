@@ -104,6 +104,12 @@ Check [this dataset on Kaggle](https://www.kaggle.com/datasets/sovitrath/voc-201
 python train_segmentation.py --train-images voc_2012_segmentation_data/train_images --train-masks voc_2012_segmentation_data/train_labels --valid-images voc_2012_segmentation_data/valid_images --valid-masks voc_2012_segmentation_data/valid_labels --config segmentation_configs/voc.yaml --weights <name/of/dinov3/weights.pth> --model-name <model_name> --epochs 50 --out-dir voc_seg --imgsz 640 640 --batch 12
 ```
 
+​	Example command with specific model:
+
+```
+python train_segmentation.py --train-images voc_2012_segmentation_data/train_images --train-masks voc_2012_segmentation_data/train_labels --valid-images voc_2012_segmentation_data/valid_images --valid-masks voc_2012_segmentation_data/valid_labels --config segmentation_configs/voc.yaml dinov3_convnext_tiny_pretrain_lvd1689m-21b726bb.pth --model-name dinov3_convnext_tiny --epochs 50 --out-dir voc_seg --imgsz 640 640 --batch 12
+```
+
 * Image inference using fine-tuned model (use the same configuration YAML file as used during training for the same weights. For example for the above training, we should use `voc.yaml` during inference also.):
 
 ```
@@ -115,3 +121,64 @@ python infer_seg_image.py --input <directory/with/images> --model <path/to/best_
 ```
 python infer_seg_video.py --input <path/to/video.mp4> --model <path.to/best_iou_weights.pth> --config <dataset/config.yaml> --model-name <model_name> --imgsz 640 640
 ```
+
+## Object Detection
+
+Check `src/detection` for all coding details.
+
+Check the `detection_configs` directory to know more about setting up the configuration YAML files.
+
+Check [this dataset on Kaggle](https://www.kaggle.com/datasets/sovitrath/voc-07-12) to know how the images and masks are structured.
+
+[Check this](https://github.com/facebookresearch/dinov3?tab=readme-ov-file#pretrained-backbones-via-pytorch-hub) to know all the `--model-name` values that can be passed (e.g. `dinov3_vits16`, etc.).
+
+The training pipeline supports building detection head with SSD and RetinaNet. RetinaNet is default is gives much better results.
+
+* Training example command:
+
+```
+python train_detection.py --weight dinov3_convnext_tiny_pretrain_lvd1689m-21b726bb.pth --model-name dinov3_convnext_tiny --imgsz 640 640 --lr 0.0001  --epochs 30 --workers 8 --batch 8 --config detection_configs/voc.yaml --out-dir trial_runs --fine-tune
+```
+
+```
+python train_detection.py --help
+usage: train_detection.py [-h] [--epochs EPOCHS] [--lr LR] [--batch BATCH] [--imgsz IMGSZ [IMGSZ ...]] [--scheduler] [--scheduler-epochs SCHEDULER_EPOCHS [SCHEDULER_EPOCHS ...]]
+                          [--out-dir OUT_DIR] --weights WEIGHTS [--repo-dir REPO_DIR] [--model-name MODEL_NAME] [--fine-tune] [--feautre-extractor {last,multi}] [--workers WORKERS]
+                          [--optimizer {SGD,AdamW}] [--config CONFIG] [--head {ssd,retinanet}]
+
+options:
+  -h, --help            show this help message and exit
+  --epochs EPOCHS       number of epochs to train for
+  --lr LR               learning rate for optimizer
+  --batch BATCH         batch size for data loader
+  --imgsz IMGSZ [IMGSZ ...]
+                        width, height
+  --scheduler
+  --scheduler-epochs SCHEDULER_EPOCHS [SCHEDULER_EPOCHS ...]
+  --out-dir OUT_DIR     output sub-directory path inside the `outputs` directory
+  --weights WEIGHTS     path to the pretrained backbone weights
+  --repo-dir REPO_DIR   path to the cloned DINOv3 repository
+  --model-name MODEL_NAME
+                        name of the model, check: https://github.com/facebookresearch/dinov3?tab=readme-ov-file#pretrained-backbones-via-pytorch-hub
+  --fine-tune
+  --feautre-extractor {last,multi}
+                        whether to use layer or multiple layers as features
+  --workers WORKERS     number of parllel workers for the data loader
+  --optimizer {SGD,AdamW}
+  --config CONFIG       path to the configuration yaml file in detection_configs folder
+  --head {ssd,retinanet}
+                        whether to build with SSD or RetinaNet detection head
+```
+
+* Image inference using fine-tuned model (use the same configuration YAML file as used during training for the same weights. For example for the above training, we should use `voc.yaml` during inference also.):
+
+```
+python infer_det_image.py --model outputs/retinanet_trial/best_model.pth --model-name dinov3_convnext_tiny --input input/inference_data/images --config detection_configs/voc.yaml
+```
+
+* Video inference using fine-tuned model (use the same configuration YAML file as used during training for the same weights. For example for the above training, we should use `voc.yaml` during inference also.):
+
+```
+python infer_det_video.py --model outputs/retinanet_trial/best_model.pth --model-name dinov3_convnext_tiny --input input/inference_data/videos/video_1.mp4 --config detection_configs/voc.yaml
+```
+
