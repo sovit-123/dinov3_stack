@@ -1,11 +1,27 @@
 import os
 import xml.etree.ElementTree as ET
-from collections import defaultdict, Counter
 import matplotlib.pyplot as plt
 import seaborn as sns
-from tqdm import tqdm
 import numpy as np
-from src.detection.config import TRAIN_ANNOT, VALID_ANNOT, CLASSES
+import argparse
+import yaml
+
+from tqdm import tqdm
+from collections import defaultdict, Counter
+
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    '--config',
+    default='detection_configs/voc.yaml',
+    help='path to the dataset configuration file'
+)
+args = parser.parse_args()
+
+with open(args.config, 'r') as f:
+    config = yaml.safe_load(f)
+
+CLASSES = config['CLASSES']
+TRAIN_ANNOT, VALID_ANNOT = config['TRAIN_ANNOT'], config['VALID_ANNOT']
 
 def parse_voc_annotation(annotation_path):
     """Parse a VOC XML annotation file and extract objects"""
