@@ -1,3 +1,10 @@
+"""
+Script to get dataset statistics.
+
+USAGE (execute from parent project directory):
+python -m src.detection.analyze_dataset
+"""
+
 import os
 import xml.etree.ElementTree as ET
 import matplotlib.pyplot as plt
