@@ -51,6 +51,12 @@ parser.add_argument(
     choices=['ssd', 'retinanet'],
     help='whether to build with SSD or RetinaNet detection head'
 )
+parser.add_argument(
+    '--out-dir',
+    dest='out_dir',
+    default='inference_results_detection',
+    help='output sub-directory path inside the `outputs` directory'
+)
 args = parser.parse_args()
 
 with open(args.config, 'r') as file:
@@ -63,7 +69,7 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 DINOV3_REPO, DINOV3_WEIGHTS = get_dinov3_paths()
 
-out_dir = 'outputs/inference_results_detection'
+out_dir = os.path.join('outputs', args.out_dir)
 os.makedirs(out_dir, exist_ok=True)
 
 COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))

@@ -58,11 +58,17 @@ parser.add_argument(
     choices=['last', 'multi'],
     help='whether to use layer or multiple layers as features'
 )
+parser.add_argument(
+    '--out-dir',
+    dest='out_dir',
+    default='inference_results_segmentation',
+    help='output sub-directory path inside the `outputs` directory'
+)
 args = parser.parse_args()
 
 DINOV3_REPO, DINOV3_WEIGHTS = get_dinov3_paths()
 
-out_dir = 'outputs/inference_results_video'
+out_dir = os.path.join('outputs', args.out_dir)
 os.makedirs(out_dir, exist_ok=True)
 
 # Set configurations.

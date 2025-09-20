@@ -50,6 +50,12 @@ parser.add_argument(
     dest='repo_dir',
     help='path to the cloned DINOv3 repository'
 )
+parser.add_argument(
+    '--out-dir',
+    dest='out_dir',
+    default='inference_results_classifier',
+    help='output sub-directory path inside the `outputs` directory'
+)
 args = parser.parse_args()
 
 DINOV3_REPO, DINOV3_WEIGHTS = get_dinov3_paths()
@@ -121,7 +127,7 @@ def inference(model, testloader, device, orig_image):
 if __name__ == '__main__':
     weights_path = pathlib.Path(args.weights)
     infer_result_path = os.path.join(
-        'outputs', 'inference_results'
+        'outputs', args.out_dir
     )
     os.makedirs(infer_result_path, exist_ok=True)
 
