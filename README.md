@@ -28,9 +28,18 @@ It is a mix of MIT and the official DINOv3 License. All the codebase in this rep
 
 ​	The above two paths will be picked up the training and inference scripts while initializing the models.
 
+Cloning of the official DINOv3 repository is necessary and the cloned path should be modified as mentioned above in the `.env` file 
+
+* Install the project requirements.
+
+```
+pip install -r requirements.txt
+```
+
 ## Updates
 
 * August 24, 2025: *First commit*. Contains training and inference scripts and *image classification* and *semantic segmentation*.
+* September 21, 2025: Object detection training and inference code added.
 
 ## Image Classification
 
@@ -122,6 +131,11 @@ python infer_seg_image.py --input <directory/with/images> --model <path/to/best_
 python infer_seg_video.py --input <path/to/video.mp4> --model <path.to/best_iou_weights.pth> --config <dataset/config.yaml> --model-name <model_name> --imgsz 640 640
 ```
 
+### Results
+
+| ![image](readme_images/image_1.jpg) | ![image](readme_images/image_2.jpg) |
+| ----------------------------------- | ----------------------------------- |
+
 ## Object Detection
 
 Check `src/detection` for all coding details.
@@ -181,4 +195,9 @@ python infer_det_image.py --model outputs/retinanet_trial/best_model.pth --model
 ```
 python infer_det_video.py --model outputs/retinanet_trial/best_model.pth --model-name dinov3_convnext_tiny --input input/inference_data/videos/video_1.mp4 --config detection_configs/voc.yaml
 ```
+
+### Results
+
+| ![image](readme_images/image_3.jpg) | ![image](readme_images/image_4.jpg) |
+| ----------------------------------- | ----------------------------------- |
 
