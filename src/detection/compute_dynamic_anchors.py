@@ -3,10 +3,25 @@ import xml.etree.ElementTree as ET
 import os
 import cv2
 import yaml
-from collections import defaultdict
 import matplotlib.pyplot as plt
+import argparse
+
 from sklearn.cluster import KMeans
 
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    '--config',
+    default='detection_configs/voc.yaml',
+    help='path to the dataset configuration file'
+)
+parser.add_argument(
+    '--max-samples',
+    default=1000,
+    type=int,
+    dest='max_samples',
+    help='maximum number of images to use to compute anchor aspect ratios'
+)
+args = parser.parse_args()
 
 def analyze_dataset_bboxes(config_path, max_samples=1000):
     """
@@ -230,14 +245,19 @@ def visualize_bbox_analysis(bbox_stats):
     plt.show()
 
 
-def create_dynamic_anchor_generator(config_path, target_resolution=[640, 640], visualize=True):
+def create_dynamic_anchor_generator(
+    config_path, 
+    target_resolution=[640, 640], 
+    visualize=True,
+    max_samples=1000
+):
     """
     Main function to create optimal anchor generator for your dataset
     """
     print("Analyzing dataset for optimal anchor configuration...")
     
     # Analyze dataset
-    bbox_stats = analyze_dataset_bboxes(config_path, max_samples=16000)
+    bbox_stats = analyze_dataset_bboxes(config_path, max_samples=max_samples)
     
     if visualize:
         visualize_bbox_analysis(bbox_stats)
@@ -253,11 +273,12 @@ def create_dynamic_anchor_generator(config_path, target_resolution=[640, 640], v
 # Usage example:
 if __name__ == "__main__":
     # Analyze your dataset and get optimal anchors
-    config_path = "detection_configs/voc.yaml"
+    config_path = args.config
     optimal_anchors, analysis = create_dynamic_anchor_generator(
         config_path, 
         target_resolution=[640, 640],
-        visualize=True
+        visualize=True,
+        max_samples=args.max_samples
     )
     
     print("\nOptimal anchor configuration:")
