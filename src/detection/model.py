@@ -63,52 +63,6 @@ class Dinov3Backbone(nn.Module):
 
         return out
 
-# class Dinov3Detection(nn.Module):
-#     def __init__(
-#         self, 
-#         fine_tune: bool=False, 
-#         num_classes: int=2,
-#         weights: str=None,
-#         model_name: str=None,
-#         repo_dir: str=None,
-#         resolution: list=[640, 640],
-#         nms: float=0.45,
-#         feature_extractor: str='last' # OR 'multi'
-#     ):
-
-#         super(Dinov3Detection, self).__init__()
-
-#         self.backbone = Dinov3Backbone(
-#             weights=weights, 
-#             model_name=model_name, 
-#             repo_dir=repo_dir, 
-#             fine_tune=fine_tune
-#         )
-       
-#         self.num_classes = num_classes
-
-#         out_channels = [768, 768, 768, 768, 768, 768]
-#         anchor_generator = DefaultBoxGenerator(
-#             [[2], [2, 3], [2, 3], [2, 3], [2], [2]],
-#         )
-#         num_anchors = anchor_generator.num_anchors_per_location()
-
-#         head = SSDHead(out_channels, num_anchors, num_classes=num_classes)
-
-#         self.model = SSD(
-#             backbone=self.backbone,
-#             num_classes=num_classes,
-#             anchor_generator=anchor_generator,
-#             size=resolution,
-#             head=head,
-#             nms_thresh=nms
-#         )
-    
-#     def forward(self, x):
-#         out = self.model(x)
-
-#         return out
-
 def dinov3_detection(
     fine_tune: bool=False, 
     num_classes: int=2,
@@ -132,12 +86,6 @@ def dinov3_detection(
         anchor_generator = DefaultBoxGenerator(
             aspect_ratios=[[2], [2, 3], [2, 3], [2, 3], [2], [2]],
         )
-        ###########################################
-        # out_channels = [backbone.backbone_model.norm.normalized_shape[0]] * 6
-        # anchor_generator = DefaultBoxGenerator(
-            # aspect_ratios=[[2], [2, 3], [2, 3], [2, 3], [2], [2]],
-            # steps=[16, 32, 64, 100, 300, 600]
-        # )
         
         num_anchors = anchor_generator.num_anchors_per_location()
         det_head = SSDHead(out_channels, num_anchors, num_classes=num_classes)
